@@ -1,0 +1,51 @@
+class Printer {
+    synchronized void printDocument() {
+        try {
+            System.out.println(Thread.currentThread().getName()
+                               + " is printing");
+            Thread.sleep(1000);
+            System.out.println("Printing finished");
+        } catch (InterruptedException e) {
+            System.out.println(e);
+        }
+    }
+}
+
+class UserThread extends Thread {
+    Printer p;
+
+    UserThread(Printer p, String name) {
+        super(name);
+        this.p = p;
+    }
+
+    public void run() {
+        System.out.println(getName() + " started");
+        p.printDocument();
+        System.out.println(getName() + " terminated");
+    }
+}
+
+public class Main {
+    public static void main(String[] args)
+            throws InterruptedException {
+        Printer p = new Printer();
+
+        UserThread t1 = new UserThread(p, "Thread-1");
+        UserThread t2 = new UserThread(p, "Thread-2");
+
+        System.out.println("Initial state: " + t1.getState());
+
+        t1.start();
+        t2.start();
+
+        Thread.sleep(200);
+        System.out.println("Current state: " + t1.getState());
+
+        t1.join();
+        t2.join();
+
+        System.out.println("Final state: " + t1.getState());
+        System.out.println("Deadlock prevented using synchronization");
+    }
+}
